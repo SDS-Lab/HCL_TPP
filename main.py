@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 # import TPPs.lrhp as lrhp
 import TPPs.thp as thp
-from Learning.hcl import train_hcl
+# from Learning.hcl import train_hcl
 from Learning.mle import train_mle
 from Learning.utils import LabelSmoothingLoss
 from data_io import prepare_dataloader
@@ -114,6 +114,7 @@ def seed_everything(seed=666):
 
 
 if __name__ == '__main__':
-    # import ipdb; ipdb.set_trace()
     main()
+
+    # import ipdb; ipdb.set_trace()
 

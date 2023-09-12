@@ -26,28 +26,57 @@ def compute_integral_biased(all_lambda, time, non_pad_mask):
 
 def compute_integral_unbiased(model, data, time, non_pad_mask, type_mask):
     """ Log-likelihood of non-events, using Monte Carlo integration. """
-    num_samples = 100
-    diff_time = (time[:, 1:] - time[:, :-1]) * non_pad_mask[:, 1:]
-    temp_time = diff_time.unsqueeze(2) * torch.rand([*diff_time.size(), num_samples], device=data.device)
-    temp_time /= (time[:, :-1] + 1).unsqueeze(2)
 
-    temp_hid = model.linear(data)[:, 1:, :]
-    temp_hid = torch.sum(temp_hid * type_mask[:, 1:, :], dim=2, keepdim=True)
+    num_samples = 100
+
+    diff_time = (time[:, 1:] - time[:, :-1]) * non_pad_mask[:, 1:]
+    # [BATCH, LEN-1], the elapsed time since last event
+
+    temp_time = diff_time.unsqueeze(2) * torch.rand([*diff_time.size(), num_samples], device=data.device)
+    # for each duration d, sample 100 random timestamps in [0,d]
+
+    temp_time /= (time[:, :-1] + 1).unsqueeze(2)
+    # divide by last event time
+
+    temp_hid = model.linear(data)[:, :-1, :]
+    # use the 'last hidden state' instead of 'current hidden state'.
+    num_types = temp_hid.shape[2]
+
+    temp_time = temp_time.unsqueeze(-2)
+    temp_time = temp_time.repeat(1, 1, num_types, 1)
+    # expand a new axis at -2, now temp_time.shape: [BATCH, LEN, Num_types, Num_samples]
+
+    # temp_hid = torch.sum(temp_hid * type_mask[:, 1:, :], dim=2, keepdim=True) # the old code
+
+    temp_hid = temp_hid.unsqueeze(-1)
+    temp_hid = temp_hid.repeat(1, 1, 1, num_samples)
+    # expand a new axis at -1, now temp_hid.shape: [BATCH, LEN, Num_types, Num_samples]
 
     all_lambda = softplus(temp_hid + model.alpha * temp_time, model.beta)
-    all_lambda = torch.sum(all_lambda, dim=2) / num_samples
+    all_lambda = torch.sum(all_lambda, dim=3) / num_samples
+    # Sum all along the Num_samples axis, get the average intensity during each duration for each types
 
-    unbiased_integral = all_lambda * diff_time
+    unbiased_integral = all_lambda * diff_time.unsqueeze(-1).repeat(1,1,num_types)
+    # expand and repeat the diff_time from [BATCH, LEN] to [BATCH, LEN, Num_types]
+
+    unbiased_integral = torch.sum(unbiased_integral, dim=-1) # sum along the Num_types axis
+    unbiased_integral = torch.sum(unbiased_integral, dim=-1) # sum along the LEN axis
+
     return unbiased_integral
 
 
-def log_likelihood(all_lambda, time, types, non_pad_mask):
+def log_likelihood(model, data, time, types):
     """ Log-likelihood of sequence. """
-    non_pad_mask = non_pad_mask.squeeze(2)  # batch * seq_len
-    num_types = all_lambda.shape[2]
-    type_mask = torch.zeros([*types.size(), num_types], device=all_lambda.device)  # batch * seq_len * num_types
-    for i in range(num_types):
-        type_mask[:, :, i] = (types == i + 1).bool().to(all_lambda.device)
+
+    non_pad_mask = get_non_pad_mask(types).squeeze(2)
+
+    type_mask = torch.zeros([*types.size(), model.num_types], device=data.device)
+    for i in range(model.num_types):
+        type_mask[:, :, i] = (types == i + 1).bool().to(data.device)
+
+    all_hid = model.linear(data)
+
+    all_lambda = softplus(all_hid, model.beta)
 
     type_lambda = torch.sum(all_lambda * type_mask, dim=2)
 
@@ -56,10 +85,11 @@ def log_likelihood(all_lambda, time, types, non_pad_mask):
     event_ll = torch.sum(event_ll, dim=-1)
 
     # non-event log-likelihood, either numerical integration or MC integration
-    non_event_ll = compute_integral_biased(type_lambda, time, non_pad_mask)
+    # non_event_ll = compute_integral_biased(type_lambda, time, non_pad_mask)
+    non_event_ll = compute_integral_unbiased(model, data, time, non_pad_mask, type_mask)
     non_event_ll = torch.sum(non_event_ll, dim=-1)
-    return event_ll, non_event_ll
 
+    return event_ll, non_event_ll
 
 def type_loss(prediction, types, loss_func):
     """ Event prediction loss, cross entropy or label smoothing. """

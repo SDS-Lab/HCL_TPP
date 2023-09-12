@@ -34,7 +34,7 @@ Downloadable from this [Google Drive link](https://drive.google.com/drive/folder
 ### MLE+Reg.
 
 ```
-python test_learning.py -batch_size 4 -epoch 50 -model 'MLE' -save_label 'MLE + Reg' -data_folder 'tpp-data/data_hawkes' -w_mle 1 -w_dis 1 -w_cl1 0 -w_cl2 0 -seed 12
+python main.py -batch_size 4 -epoch 50 -model 'MLE' -save_label 'MLE + Reg' -data_folder 'tpp-data/data_hawkes' -w_mle 1 -w_dis 1 -w_cl1 0 -w_cl2 0 -seed 12
 
 ```
 
@@ -42,7 +42,7 @@ python test_learning.py -batch_size 4 -epoch 50 -model 'MLE' -save_label 'MLE + 
 ### MLE+DA
 
 ```
-python test_learning.py -batch_size 4 -superpose -epoch 50 -model 'MLE' -save_label 'MLE + DA' -data_folder 'tpp-data/data_hawkes' -w_mle 1 -w_dis 1 -w_cl1 0 -w_cl2 0 -seed 12
+python main.py -batch_size 4 -superpose -epoch 50 -model 'MLE' -save_label 'MLE + DA' -data_folder 'tpp-data/data_hawkes' -w_mle 1 -w_dis 1 -w_cl1 0 -w_cl2 0 -seed 12
 
 ```
 
@@ -50,7 +50,7 @@ python test_learning.py -batch_size 4 -superpose -epoch 50 -model 'MLE' -save_la
 ### Dis
 
 ```
-python test_learning.py  -batch_size 4  -model 'MLE' -save_label 'Dis' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 0 -w_dis 1 -w_cl1 0 -w_cl2 0 -seed 12
+python main.py  -batch_size 4  -model 'MLE' -save_label 'Dis' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 0 -w_dis 1 -w_cl1 0 -w_cl2 0 -seed 12
 
 ```
 
@@ -58,7 +58,7 @@ python test_learning.py  -batch_size 4  -model 'MLE' -save_label 'Dis' -data_fol
 ### HCL+MLE
 
 ```
-python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HCL' -save_label 'HCL+MLE ' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 1 -w_dis 1 -w_cl1 1 -w_cl2 1 -seed 12
+python main.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HCL' -save_label 'HCL+MLE ' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 1 -w_dis 1 -w_cl1 1 -w_cl2 1 -seed 12
 
 ```
 
@@ -66,14 +66,14 @@ python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HC
 ### HCLeve+MLE
 
 ```
-python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HCL' -save_label 'HCL+MLE ' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 1 -w_dis 1 -w_cl1 1 -w_cl2 0 -seed 12
+python main.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HCL' -save_label 'HCL+MLE ' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 1 -w_dis 1 -w_cl1 1 -w_cl2 0 -seed 12
 ```
 
 
 ### HCLseq+MLE
 
 ```
-python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HCL' -save_label 'HCL+MLE ' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 1 -w_dis 1 -w_cl1 0 -w_cl2 1 -seed 12
+python main.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HCL' -save_label 'HCL+MLE ' -data_folder 'tpp-data/data_hawkes' -epoch 50 -w_mle 1 -w_dis 1 -w_cl1 0 -w_cl2 1 -seed 12
 
 ```
 
